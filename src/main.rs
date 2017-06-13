@@ -15,8 +15,8 @@ fn main() {
     println!("Hello, world!");
 
 //    play_guess_game();
-    generate_request();
-//    generate_request_from_threads();
+//    generate_request();
+    generate_request_from_threads();
 }
 
 fn play_guess_game() {
@@ -27,9 +27,7 @@ fn play_guess_game() {
 }
 
 fn generate_request() {
-    let ssl = NativeTlsClient::new().unwrap();
-    let connector = HttpsConnector::new(ssl);
-    let client = Client::with_connector(connector);
+    let client = create_client();
 
     let plain_url = "http://reddit.com/";
 
@@ -48,15 +46,43 @@ fn generate_request() {
 
 fn generate_request_from_threads() {
 
-    let client = Arc::new(Client::new());
+    let client = Arc::new(create_client());
     let clone1 = client.clone();
     let clone2 = client.clone();
-    thread::spawn(move || {
-        let mut res = clone1.get("http://google.com").send().unwrap();
-        assert_eq!(res.status, hyper::BadRequest);
+    let handle1 = thread::spawn(move || {
+        perform_request(&clone1, "https://google.com/");
     });
-    thread::spawn(move || {
-        clone2.post("http://example.domain/post").body("foo=bar").send().unwrap();
+    let handle2 = thread::spawn(move || {
+        let mut response = perform_request(&clone2, "https://reddit.com/");
+        show_response(&mut response);
     });
+    handle1.join();
+    handle2.join();
 
+}
+
+fn perform_request(client: &Client, url: &str) -> Response {
+    println!("{}", url);
+    let safety_url = Url::parse(&url).unwrap();
+    println!("{:?}", safety_url);
+    let mut res = client.get(safety_url).send().expect(&format!("Going to {:?}", url));
+
+    assert_eq!(res.status, hyper::Ok);
+
+    res
+}
+
+fn create_client() -> Client {
+    let ssl = NativeTlsClient::new().unwrap();
+    let connector = HttpsConnector::new(ssl);
+    let client = Client::with_connector(connector);
+
+    return client
+}
+
+fn show_response(mut response: &mut Response) {
+    let mut response_body = String::new();
+    response.read_to_string(&mut response_body).expect(&format!("Response of {:?} expected", response.url));
+
+    println!("Response from {:?}: {}", response.url, response_body)
 }
