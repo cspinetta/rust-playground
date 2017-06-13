@@ -4,3 +4,6 @@ version = "0.1.0"
 authors = ["Cristian Spinetta <cebs91@gmail.com>"]
 
 [dependencies]
+hyper = "0.10.12"
+hyper-native-tls = "0.2.4"
+rand = "0.3.15"
