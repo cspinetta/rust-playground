@@ -50,7 +50,8 @@ fn generate_request_from_threads() {
     let clone1 = client.clone();
     let clone2 = client.clone();
     let handle1 = thread::spawn(move || {
-        perform_request(&clone1, "https://google.com/");
+        let mut response = perform_request(&clone1, "https://google.com/");
+        show_response(&mut response);
     });
     let handle2 = thread::spawn(move || {
         let mut response = perform_request(&clone2, "https://reddit.com/");
@@ -65,7 +66,7 @@ fn perform_request(client: &Client, url: &str) -> Response {
     println!("{}", url);
     let safety_url = Url::parse(&url).unwrap();
     println!("{:?}", safety_url);
-    let mut res = client.get(safety_url).send().expect(&format!("Going to {:?}", url));
+    let res = client.get(safety_url).send().expect(&format!("Going to {:?}", url));
 
     assert_eq!(res.status, hyper::Ok);
 
@@ -80,9 +81,10 @@ fn create_client() -> Client {
     return client
 }
 
-fn show_response(mut response: &mut Response) {
-    let mut response_body = String::new();
-    response.read_to_string(&mut response_body).expect(&format!("Response of {:?} expected", response.url));
-
-    println!("Response from {:?}: {}", response.url, response_body)
+fn show_response(response: &mut Response) {
+    let mut content = String::new();
+    match response.read_to_string(&mut content) {
+        Ok(c) => println!("Response from {}", c),
+        Err(_) => println!("Failed trying to parse response body as string")
+    }
 }
