@@ -10,13 +10,26 @@ use hyper::Url;
 use hyper::net::HttpsConnector;
 use hyper_native_tls::NativeTlsClient;
 
+//mod test_requests;
+mod structs_examples;
+
+use structs_examples::Rectangle;
 
 fn main() {
     println!("Hello, world!");
 
+    let rect1 = Rectangle { length: 50, width: 30 };
+    let rect2 = Rectangle { length: 40, width: 10 };
+    let rect3 = Rectangle { length: 45, width: 60 };
+
+    println!("Can rect1 hold rect2? {}", rect1.can_hold(&rect2));
+    println!("Can rect1 hold rect3? {}", rect1.can_hold(&rect3));
+
 //    play_guess_game();
 //    generate_request();
-    generate_request_from_threads();
+//    generate_request_from_threads();
+
+//    start_server("127.0.0.1:8080", "/tmp/data-rs/");
 }
 
 fn play_guess_game() {
