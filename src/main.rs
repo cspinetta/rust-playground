@@ -12,7 +12,7 @@ use std::io::Read;
 //mod test_requests;
 mod structs_examples;
 mod enum_examples;
-mod hyper_server_example;
+mod web_server;
 
 fn main() {
     println!("Hello, world!");
@@ -20,7 +20,7 @@ fn main() {
 //    structs_examples::test();
 //    enum_examples::test();
 
-    hyper_server_example::start();
+    web_server::start();
 
 //    play_guess_game();
 //    generate_request();
